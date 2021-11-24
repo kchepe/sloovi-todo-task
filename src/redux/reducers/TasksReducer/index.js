@@ -6,7 +6,6 @@ const initalState = {
 };
 
 const tasksReducer = (state = initalState, action) => {
-  console.log(action, "action");
   const newDataArray = state.data;
   switch (action.type) {
     case TasksAction.GET_ALL_TASKS:

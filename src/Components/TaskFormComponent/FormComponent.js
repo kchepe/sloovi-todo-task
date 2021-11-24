@@ -16,7 +16,6 @@ import { Controller, useForm } from "react-hook-form";
 import DateAdapter from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
-import TimePicker from "@mui/lab/TimePicker";
 import { useSelector, useDispatch } from "react-redux";
 import { ActionCreator } from "../../redux/index";
 import { bindActionCreators } from "redux";
@@ -37,7 +36,7 @@ const useStyles = makeStyles(() => ({
 const initialFormData = {
   task: "",
   date: null,
-  time: null,
+  time: "",
   user: "",
 };
 
@@ -66,12 +65,16 @@ const FormComponent = (props) => {
     handleGetUsers();
   }, []);
 
-  console.log(taskById);
+  const handleCancel = () => {
+    reset(initialFormData);
+    handleHideForm();
+  };
 
   const handleAdd = async (data) => {
     const { task, date, time, user } = data;
     const newDate = new Date(date).toLocaleDateString();
-    const newTime = new Date(time).toLocaleTimeString();
+    const a = time.split(":");
+    const totalSeconds = +a[0] * 60 * 60 + +a[1] * 60;
     const newFormatDate = format(new Date(newDate), "yyyy-MM-dd");
     const timeZone = new Date().getTimezoneOffset();
 
@@ -82,6 +85,7 @@ const FormComponent = (props) => {
         is_completed: 0,
         time_zone: timeZone,
         task_msg: task,
+        task_time: totalSeconds,
       });
     }
 
@@ -91,14 +95,9 @@ const FormComponent = (props) => {
       is_completed: 0,
       time_zone: timeZone,
       task_msg: task,
+      task_time: totalSeconds,
     });
-
-    reset(initialFormData);
-    handleHideForm();
-  };
-  const handleCancel = () => {
-    reset(initialFormData);
-    handleHideForm();
+    handleCancel();
   };
   return (
     <div>
@@ -172,24 +171,23 @@ const FormComponent = (props) => {
               <Controller
                 name="time"
                 control={control}
-                defaultValue={""}
+                defaultValue={
+                  formType === "addForm"
+                    ? ""
+                    : new Date(taskById.data.task_time * 1000)
+                        .toISOString()
+                        .substr(11, 8)
+                }
                 render={({ field }) => (
-                  <LocalizationProvider dateAdapter={DateAdapter}>
-                    <TimePicker
-                      {...field}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          fullWidth
-                          color="primary"
-                          value=""
-                          size="small"
-                          error={!!errors.time}
-                          helperText={errors.time && "Time is required"}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    fullWidth
+                    type="time"
+                    size="small"
+                    error={!!errors.time}
+                    helperText={errors.task && "Time is required"}
+                  />
                 )}
               />
             </Stack>
