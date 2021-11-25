@@ -186,7 +186,7 @@ const FormComponent = (props) => {
                     type="time"
                     size="small"
                     error={!!errors.time}
-                    helperText={errors.task && "Time is required"}
+                    helperText={errors.time && "Time is required"}
                   />
                 )}
               />
